@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#07231a" />
+      <stop offset="50%" stop-color="#0d3c2e" />
+      <stop offset="100%" stop-color="#061c15" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fce8a9" />
+      <stop offset="50%" stop-color="#d4af37" />
+      <stop offset="100%" stop-color="#aa8214" />
+    </linearGradient>
+    <linearGradient id="innerGlow" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Background with subtle corner radius -->
+  <rect width="512" height="512" rx="104" fill="url(#bgGrad)" />
+  <rect width="512" height="512" rx="104" fill="url(#innerGlow)" />
+
+  <!-- Outer Islamic Border -->
+  <rect x="24" y="24" width="464" height="464" rx="88" fill="none" stroke="url(#goldGrad)" stroke-width="3" stroke-opacity="0.4" />
+  <rect x="36" y="36" width="440" height="440" rx="76" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" stroke-opacity="0.25" stroke-dasharray="6,4" />
+
+  <!-- Center Group -->
+  <g transform="translate(256, 256)" filter="url(#shadow)">
+    <!-- 8-Pointed Star (Rub el Hizb) Background Layer -->
+    <rect x="-140" y="-140" width="280" height="280" rx="20" fill="none" stroke="url(#goldGrad)" stroke-width="4" stroke-opacity="0.45" />
+    <rect x="-140" y="-140" width="280" height="280" rx="20" fill="none" stroke="url(#goldGrad)" stroke-width="4" stroke-opacity="0.45" transform="rotate(45)" />
+
+    <circle r="120" fill="#09291f" stroke="url(#goldGrad)" stroke-width="3" />
+
+    <!-- Symbolic Open Book / Quran (Farai'd) -->
+    <g transform="translate(0, -10)">
+      <!-- Left Page -->
+      <path d="M-8 -30 C-35 -40 -65 -35 -85 -25 C-88 -23 -90 -20 -90 -16 L-90 48 C-90 53 -85 57 -80 55 C-62 47 -35 44 -8 52 Z" fill="#fdfbf7" stroke="url(#goldGrad)" stroke-width="3" />
+      <path d="M-20 -15 L-75 -10 M-20 6 L-75 11 M-20 27 L-65 31" stroke="#c5a059" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.7" />
+
+      <!-- Right Page -->
+      <path d="M8 -30 C35 -40 65 -35 85 -25 C88 -23 90 -20 90 -16 L90 48 C90 53 85 57 80 55 C62 47 35 44 8 52 Z" fill="#fdfbf7" stroke="url(#goldGrad)" stroke-width="3" />
+      <path d="M20 -15 L75 -10 M20 6 L75 11 M20 27 L65 31" stroke="#c5a059" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.7" />
+
+      <!-- Center spine fold -->
+      <path d="M0 -34 L0 54" stroke="url(#goldGrad)" stroke-width="4" stroke-linecap="round" />
+      <circle cx="0" cy="-34" r="3" fill="#d4af37" />
+    </g>
+
+    <!-- Scale of Justice / Division of Inheritance (Mawarith) Symbol below book -->
+    <g transform="translate(0, 68)">
+      <path d="M-36 0 L36 0" stroke="url(#goldGrad)" stroke-width="3.5" stroke-linecap="round" />
+      <circle cx="0" cy="0" r="4.5" fill="#fce8a9" />
+      <path d="M0 0 L0 18" stroke="url(#goldGrad)" stroke-width="2.5" />
+      <!-- Scale pans -->
+      <path d="M-36 0 L-46 16 M-36 0 L-26 16" stroke="url(#goldGrad)" stroke-width="1.8" />
+      <path d="M-48 16 Q-36 24 -24 16 Z" fill="url(#goldGrad)" />
+      
+      <path d="M36 0 L26 16 M36 0 L46 16" stroke="url(#goldGrad)" stroke-width="1.8" />
+      <path d="M24 16 Q36 24 48 16 Z" fill="url(#goldGrad)" />
+    </g>
+  </g>
+</svg>

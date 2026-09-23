@@ -1,0 +1,6 @@
+{
+  "name": "المواريث",
+  "description": "علم الفرائض وأحكام الميراث في الإسلام، مع كتاب تعليمي وحاسبة مواريث ذكية متخصصة.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
