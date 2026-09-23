@@ -13,12 +13,25 @@ import {
   List,
 } from 'lucide-react';
 
-export const BookReader: React.FC = () => {
+interface BookReaderProps {
+  onChapterSelect?: (title: string) => void;
+}
+
+export const BookReader: React.FC<BookReaderProps> = ({ onChapterSelect }) => {
   const [selectedChapterId, setSelectedChapterId] = useState<number>(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [fontSize, setFontSize] = useState<number>(16); // base font size in px
   const [copied, setCopied] = useState(false);
+
+  const handleSelectChapter = (id: number) => {
+    setSelectedChapterId(id);
+    const chap = BOOK_CHAPTERS.find((c) => c.id === id);
+    if (chap && onChapterSelect) {
+      onChapterSelect(chap.title);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const categories = [
     { id: 'all', label: 'جميع الفصول (28)' },
@@ -126,10 +139,7 @@ export const BookReader: React.FC = () => {
                   return (
                     <button
                       key={chap.id}
-                      onClick={() => {
-                        setSelectedChapterId(chap.id);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
+                      onClick={() => handleSelectChapter(chap.id)}
                       className={`w-full text-right p-2.5 rounded-xl text-xs transition flex items-start gap-2.5 ${
                         isSelected
                           ? 'bg-[#0e382c] text-white font-bold shadow-xs'

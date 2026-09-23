@@ -1,24 +1,58 @@
 import React from 'react';
-import { BookOpen, Calculator, BookMarked, Sparkles, CheckCircle2, Home, Menu, X } from 'lucide-react';
+import {
+  BookOpen,
+  Calculator,
+  BookMarked,
+  Sparkles,
+  CheckCircle2,
+  Home,
+  Menu,
+  X,
+  Layers,
+  Info,
+  ArrowRight,
+  ArrowLeft,
+} from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 
-export type ActiveTab = 'home' | 'calculator' | 'book' | 'dictionary' | 'assistant' | 'tests';
+export type ActiveTab =
+  | 'home'
+  | 'calculator'
+  | 'book'
+  | 'endowment'
+  | 'dictionary'
+  | 'assistant'
+  | 'about'
+  | 'tests';
 
 interface NavbarProps {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
+  canGoBack?: boolean;
+  canGoForward?: boolean;
+  onGoBack?: () => void;
+  onGoForward?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  activeTab,
+  setActiveTab,
+  canGoBack,
+  canGoForward,
+  onGoBack,
+  onGoForward,
+}) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
     { id: 'home', label: 'الرئيسية', icon: <Home className="w-4 h-4" /> },
     { id: 'calculator', label: 'حاسبة المواريث', icon: <Calculator className="w-4 h-4" /> },
-    { id: 'book', label: 'كتاب الفرائض (28 فصلاً)', icon: <BookOpen className="w-4 h-4" /> },
-    { id: 'dictionary', label: 'القاموس', icon: <BookMarked className="w-4 h-4" /> },
+    { id: 'book', label: 'كتاب المواريث', icon: <BookOpen className="w-4 h-4" /> },
+    { id: 'endowment', label: 'الوقف وأحكامه', icon: <Layers className="w-4 h-4 text-[#c5a059]" /> },
+    { id: 'dictionary', label: 'قاموس المصطلحات', icon: <BookMarked className="w-4 h-4" /> },
     { id: 'assistant', label: 'المساعد الذكي', icon: <Sparkles className="w-4 h-4" /> },
-    { id: 'tests', label: 'الاختبارات الحسابية', icon: <CheckCircle2 className="w-4 h-4" /> },
+    { id: 'about', label: 'عن التطبيق', icon: <Info className="w-4 h-4" /> },
+    { id: 'tests', label: 'الاختبارات', icon: <CheckCircle2 className="w-4 h-4" /> },
   ];
 
   const handleSelectTab = (tab: ActiveTab) => {
@@ -31,39 +65,76 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     <header className="sticky top-0 z-40 bg-[#0e382c]/95 backdrop-blur-md border-b border-[#c5a059]/30 text-[#fbf9f4] shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          
-          {/* Logo & App Name */}
-          <div
-            onClick={() => handleSelectTab('home')}
-            className="flex items-center gap-3 cursor-pointer group"
-          >
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[#1c5d4b] to-[#0a2c22] border border-[#c5a059] flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
-              <span className="font-amiri text-[#f3e5ab] text-xl font-bold">م</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl sm:text-2xl font-bold font-amiri tracking-wide text-[#fdfbf7]">
-                  المواريث
-                </span>
-                <span className="text-[10px] uppercase tracking-wider bg-[#c5a059]/20 text-[#f3e5ab] border border-[#c5a059]/40 rounded-full px-2 py-0.5 font-medium">
-                  علم الفرائض
-                </span>
+          {/* Logo & Navigation Back/Forward Buttons */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Top Quick Back Button (In RTL, ArrowRight goes back) */}
+            {onGoBack && (
+              <div className="flex items-center bg-[#09291f]/80 p-1 rounded-xl border border-[#c5a059]/30">
+                <button
+                  onClick={onGoBack}
+                  disabled={!canGoBack}
+                  title="رجوع للخلف"
+                  aria-label="رجوع للخلف"
+                  className={`p-1.5 rounded-lg transition ${
+                    canGoBack
+                      ? 'text-[#f3e5ab] hover:bg-white/10 active:scale-95'
+                      : 'text-gray-500 opacity-40 cursor-not-allowed'
+                  }`}
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+
+                <div className="w-px h-3.5 bg-[#c5a059]/30 mx-0.5" />
+
+                <button
+                  onClick={onGoForward}
+                  disabled={!canGoForward}
+                  title="تقدم للأمام"
+                  aria-label="تقدم للأمام"
+                  className={`p-1.5 rounded-lg transition ${
+                    canGoForward
+                      ? 'text-[#f3e5ab] hover:bg-white/10 active:scale-95'
+                      : 'text-gray-500 opacity-40 cursor-not-allowed'
+                  }`}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
               </div>
-              <p className="text-[11px] text-[#e0ded8]/80 hidden sm:block">
-                الحساب الشرعي القطعي والمنهج التأصيلي
-              </p>
+            )}
+
+            {/* Logo */}
+            <div
+              onClick={() => handleSelectTab('home')}
+              className="flex items-center gap-2.5 cursor-pointer group"
+            >
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[#1c5d4b] to-[#0a2c22] border border-[#c5a059] flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform shrink-0">
+                <span className="font-amiri text-[#f3e5ab] text-lg sm:text-xl font-bold">م</span>
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="text-lg sm:text-2xl font-bold font-amiri tracking-wide text-[#fdfbf7]">
+                    المواريث
+                  </span>
+                  <span className="text-[10px] uppercase tracking-wider bg-[#c5a059]/20 text-[#f3e5ab] border border-[#c5a059]/40 rounded-full px-1.5 sm:px-2 py-0.5 font-medium">
+                    والوقف
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#e0ded8]/80 hidden md:block">
+                  علم الفرائض والمواريث والوقف وأحكامه
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1.5 bg-[#09291f]/60 p-1.5 rounded-2xl border border-[#c5a059]/20">
+          <nav className="hidden xl:flex items-center gap-1 bg-[#09291f]/60 p-1.5 rounded-2xl border border-[#c5a059]/20">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleSelectTab(item.id)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                     isActive
                       ? 'bg-[#c5a059] text-[#0e382c] font-bold shadow-sm'
                       : 'text-[#e8e4da] hover:text-white hover:bg-white/5'
@@ -76,11 +147,43 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
             })}
           </nav>
 
+          {/* Medium Screens (lg) Compact Navigation */}
+          <nav className="hidden lg:flex xl:hidden items-center gap-1 bg-[#09291f]/60 p-1.5 rounded-2xl border border-[#c5a059]/20">
+            {navItems.slice(0, 5).map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleSelectTab(item.id)}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all ${
+                    isActive
+                      ? 'bg-[#c5a059] text-[#0e382c] font-bold shadow-sm'
+                      : 'text-[#e8e4da] hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+            <button
+              onClick={() => handleSelectTab('about')}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all ${
+                activeTab === 'about'
+                  ? 'bg-[#c5a059] text-[#0e382c] font-bold'
+                  : 'text-[#e8e4da] hover:text-white'
+              }`}
+            >
+              <Info className="w-3.5 h-3.5" />
+              <span>عن التطبيق</span>
+            </button>
+          </nav>
+
           {/* Actions & PWA Install Button */}
           <div className="flex items-center gap-2">
             <PWAInstallButton
               variant="outline"
-              className="hidden sm:inline-flex text-xs py-2 px-3.5"
+              className="hidden sm:inline-flex text-xs py-2 px-3"
               label="تثبيت التطبيق"
             />
 
@@ -99,14 +202,14 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-[#c5a059]/20 bg-[#0a2e24] px-4 pt-3 pb-6 animate-in slide-in-from-top-4 duration-200">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleSelectTab(item.id)}
-                  className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all ${
                     isActive
                       ? 'bg-[#c5a059] text-[#0e382c] font-bold'
                       : 'text-[#f5f2eb] hover:bg-white/5'
@@ -120,11 +223,11 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                 </button>
               );
             })}
-            
+
             <div className="pt-2">
               <PWAInstallButton
                 variant="primary"
-                className="w-full py-3 text-sm"
+                className="w-full py-2.5 text-xs sm:text-sm"
                 label="تثبيت تطبيق المواريث على الهاتف"
               />
             </div>
