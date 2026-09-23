@@ -64,3 +64,24 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #0e382c;
 }
+
+/* Right-to-Left News Ticker Animation */
+@keyframes ticker-move-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-ticker-left {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: ticker-move-left 42s linear infinite;
+}
+
+.animate-ticker-left:hover {
+  animation-play-state: paused;
+}

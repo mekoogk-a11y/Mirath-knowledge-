@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { HeirsInput, CalculationResult } from '../types/inheritance';
 import { calculateInheritance } from '../engine/farayedEngine';
 import {
@@ -13,6 +13,8 @@ import {
   Coins,
   Sparkles,
   HelpCircle,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 const CURRENCIES = [
@@ -51,14 +53,32 @@ const INITIAL_INPUT: HeirsInput = {
   maternalSistersCount: 0,
 };
 
-export const Calculator: React.FC = () => {
+export interface CalculatorProps {
+  initialPreset?: string | null;
+  onPresetConsumed?: () => void;
+}
+
+export const Calculator: React.FC<CalculatorProps> = ({
+  initialPreset,
+  onPresetConsumed,
+}) => {
   const [input, setInput] = useState<HeirsInput>(INITIAL_INPUT);
   const [hasCalculated, setHasCalculated] = useState(true);
+  const [copiedSummary, setCopiedSummary] = useState(false);
 
   // Compute calculation
   const result: CalculationResult = useMemo(() => {
     return calculateInheritance(input);
   }, [input]);
+
+  useEffect(() => {
+    if (initialPreset) {
+      handleApplyPreset(initialPreset);
+      if (onPresetConsumed) {
+        onPresetConsumed();
+      }
+    }
+  }, [initialPreset]);
 
   const handleGenderChange = (gender: 'male' | 'female') => {
     setInput((prev) => ({
@@ -135,6 +155,36 @@ export const Calculator: React.FC = () => {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleCopySummary = () => {
+    const textLines = [
+      `مسألة قسمة مواريث شرعية`,
+      `المتوفى: ${input.deceasedGender === 'male' ? 'ذكر (رجل)' : 'أنثى (امرأة)'}`,
+      `قيمة التركة: ${result.estateValue.toLocaleString('ar-EG')} ${result.currency}`,
+      `أصل المسألة: ${result.aslMasalah} ${
+        result.hasAwl
+          ? `(عالت إلى ${result.finalBase})`
+          : result.hasRadd
+          ? `(ردّت إلى ${result.finalBase})`
+          : ''
+      }`,
+      `-----------------------------`,
+      ...result.heirs.map(
+        (h) =>
+          `${h.name} (${h.count}): فرض ${h.shareName} (${h.shareFraction}) | السهام: ${h.sharesCount} | المبلغ: ${h.totalAmount.toLocaleString(
+            'ar-EG'
+          )} ${result.currency} ${
+            h.count > 1 ? `(لكل فرد: ${h.individualAmount.toLocaleString('ar-EG')})` : ''
+          }`
+      ),
+      `-----------------------------`,
+      `تم الحساب عبر: تطبيق ومنصة المواريث والوقف`,
+    ].join('\n');
+
+    navigator.clipboard.writeText(textLines);
+    setCopiedSummary(true);
+    setTimeout(() => setCopiedSummary(false), 2500);
   };
 
   return (
@@ -582,14 +632,33 @@ export const Calculator: React.FC = () => {
                       محسوبة وفق إجماع وقواعد أئمة الفقه الإسلامي المعتمدة
                     </p>
                   </div>
-                  <button
-                    onClick={handlePrint}
-                    className="p-2 rounded-xl bg-[#0e382c]/5 hover:bg-[#0e382c]/10 text-[#0e382c] text-xs font-semibold flex items-center gap-1.5 transition"
-                    title="طباعة التقرير"
-                  >
-                    <Printer className="w-4 h-4 text-[#c5a059]" />
-                    <span className="hidden sm:inline">طباعة المسألة</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCopySummary}
+                      className="p-2 rounded-xl bg-[#c5a059]/15 hover:bg-[#c5a059]/25 text-[#0e382c] text-xs font-semibold flex items-center gap-1.5 transition border border-[#c5a059]/30"
+                      title="نسخ ملخص المسألة"
+                    >
+                      {copiedSummary ? (
+                        <>
+                          <Check className="w-4 h-4 text-emerald-700" />
+                          <span className="text-emerald-800 font-bold">تم النسخ!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4 text-[#c5a059]" />
+                          <span className="hidden sm:inline">نسخ الملخص</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={handlePrint}
+                      className="p-2 rounded-xl bg-[#0e382c]/5 hover:bg-[#0e382c]/10 text-[#0e382c] text-xs font-semibold flex items-center gap-1.5 transition border border-gray-200"
+                      title="طباعة التقرير"
+                    >
+                      <Printer className="w-4 h-4 text-[#c5a059]" />
+                      <span className="hidden sm:inline">طباعة المسألة</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Quick Metrics */}
@@ -628,6 +697,70 @@ export const Calculator: React.FC = () => {
                     </span>
                   </div>
                 </div>
+
+                {/* Visual Distribution Bar */}
+                {result.heirs.length > 0 && result.finalBase > 0 && (
+                  <div className="space-y-2 pt-2 border-t border-gray-100">
+                    <div className="flex items-center justify-between text-xs text-gray-600 font-medium">
+                      <span className="font-bold text-[#0e382c] font-amiri text-sm">
+                        المخطط البياني لتوزيع التركة الشرعية:
+                      </span>
+                      <span className="text-[11px] font-mono text-gray-400">100% توزيع كامل</span>
+                    </div>
+
+                    <div className="h-7 w-full rounded-xl overflow-hidden flex bg-gray-100 border border-[#c5a059]/30 shadow-inner">
+                      {result.heirs.map((heir, idx) => {
+                        const pct = Math.max(1, (heir.sharesCount / result.finalBase) * 100);
+                        const palette = [
+                          'bg-[#0e382c]',
+                          'bg-[#c5a059]',
+                          'bg-[#1a5b48]',
+                          'bg-[#d8b56d]',
+                          'bg-[#2d7a64]',
+                          'bg-[#a8823c]',
+                          'bg-[#3d9179]',
+                        ];
+                        const barBg = palette[idx % palette.length];
+                        return (
+                          <div
+                            key={heir.id}
+                            style={{ width: `${pct}%` }}
+                            className={`${barBg} h-full transition-all relative group flex items-center justify-center text-white text-[11px] font-bold overflow-hidden select-none hover:brightness-110 cursor-pointer`}
+                            title={`${heir.name}: ${heir.shareName} (${heir.shareFraction}) (${pct.toFixed(1)}%) — ${heir.totalAmount.toLocaleString('ar-EG')} ${result.currency}`}
+                          >
+                            {pct > 10 && <span className="truncate px-1.5">{heir.name}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Legend */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1 text-[11px]">
+                      {result.heirs.map((heir, idx) => {
+                        const pct = ((heir.sharesCount / result.finalBase) * 100).toFixed(1);
+                        const palette = [
+                          'bg-[#0e382c]',
+                          'bg-[#c5a059]',
+                          'bg-[#1a5b48]',
+                          'bg-[#d8b56d]',
+                          'bg-[#2d7a64]',
+                          'bg-[#a8823c]',
+                          'bg-[#3d9179]',
+                        ];
+                        const dotBg = palette[idx % palette.length];
+                        return (
+                          <div key={heir.id} className="flex items-center gap-1.5">
+                            <span className={`w-2.5 h-2.5 rounded-full ${dotBg} shrink-0`} />
+                            <span className="font-semibold text-[#0e382c]">{heir.name}:</span>
+                            <span className="text-gray-500 font-mono">
+                              {heir.shareFraction} ({pct}%)
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* Fiqh special notes (e.g. Umariyyah, Manbariyyah) */}
                 {result.fiqhNotes.length > 0 && (

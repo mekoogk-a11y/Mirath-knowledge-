@@ -10,6 +10,8 @@ import { EngineTestsView } from './components/EngineTestsView';
 import { AboutView } from './components/AboutView';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { NavigationController, TAB_NAMES } from './components/NavigationController';
+import { ContributionTicker } from './components/ContributionTicker';
+import { GlobalSearchModal } from './components/GlobalSearchModal';
 import { MessageCircle, ExternalLink } from 'lucide-react';
 
 export default function App() {
@@ -20,7 +22,26 @@ export default function App() {
   const [subTitle, setSubTitle] = useState<string | undefined>(undefined);
   const [subBackHandler, setSubBackHandler] = useState<(() => void) | undefined>(undefined);
 
+  // Global search modal state
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Preset to pass to the Calculator when requested from Hero or Search
+  const [calculatorPreset, setCalculatorPreset] = useState<string | null>(null);
+
   const activeTab = history[historyIndex] || 'home';
+
+  // Global keyboard shortcut (Ctrl+K or Cmd+K) to open search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Navigate to a specific tab
   const navigateTo = useCallback(
@@ -50,6 +71,16 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     [activeTab, historyIndex]
+  );
+
+  const handleNavigateWithPayload = useCallback(
+    (tab: ActiveTab, payload?: { chapterId?: number; endowmentId?: string; presetKey?: string }) => {
+      if (payload?.presetKey) {
+        setCalculatorPreset(payload.presetKey);
+      }
+      navigateTo(tab);
+    },
+    [navigateTo]
   );
 
   // Go Back
@@ -134,7 +165,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-islamic-pattern text-[#1c2925] selection:bg-[#c5a059]/20 selection:text-[#0e382c]">
-      {/* Top Navbar with quick Back/Forward buttons */}
+      {/* Top Navbar with quick Back/Forward buttons and search trigger */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={navigateTo}
@@ -142,7 +173,18 @@ export default function App() {
         canGoForward={canGoForward}
         onGoBack={goBack}
         onGoForward={goForward}
+        onOpenSearch={() => setIsSearchOpen(true)}
       />
+
+      {/* Global Command Palette / Search Modal (Ctrl + K) */}
+      <GlobalSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onNavigate={handleNavigateWithPayload}
+      />
+
+      {/* Scrolling News Ticker for Project Contributions (Account: 2813955) */}
+      <ContributionTicker />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
@@ -161,8 +203,18 @@ export default function App() {
         />
 
         {/* View Switching */}
-        {activeTab === 'home' && <HeroHome onNavigate={navigateTo} />}
-        {activeTab === 'calculator' && <Calculator />}
+        {activeTab === 'home' && (
+          <HeroHome
+            onNavigate={handleNavigateWithPayload}
+            onOpenSearch={() => setIsSearchOpen(true)}
+          />
+        )}
+        {activeTab === 'calculator' && (
+          <Calculator
+            initialPreset={calculatorPreset}
+            onPresetConsumed={() => setCalculatorPreset(null)}
+          />
+        )}
         {activeTab === 'book' && (
           <BookReader
             onChapterSelect={(title) => {
@@ -243,8 +295,8 @@ export default function App() {
             </button>
           </div>
 
-          {/* Official Credits, Dedication, and WhatsApp Contact */}
-          <div className="pt-6 border-t border-[#c5a059]/25 max-w-2xl mx-auto space-y-3">
+          {/* Official Credits and WhatsApp Contact */}
+          <div className="pt-6 border-t border-[#c5a059]/25 max-w-2xl mx-auto">
             <div className="text-sm font-semibold text-[#fdfbf7] flex flex-wrap items-center justify-center gap-2">
               <span>تصميم وتطوير: كمال جعفر زكريا</span>
               <span className="text-[#c5a059]">•</span>
@@ -262,8 +314,14 @@ export default function App() {
               </span>
             </div>
 
-            <div className="text-xs text-[#c5a059] font-amiri font-bold text-sm tracking-wide">
-              إهداء إلى وزارة الأوقاف – جمهورية السودان
+            <div className="text-xs text-[#f3e5ab] font-medium flex flex-wrap items-center justify-center gap-2 pt-2">
+              <span className="text-[#c5a059]">مساهمات دعم وتطوير التطبيق:</span>
+              <span>حساب بنك الخرطوم باسم المصمم كمال جعفر:</span>
+              <span className="font-mono font-extrabold text-[#f3e5ab] bg-white/10 px-2 py-0.5 rounded-md border border-[#c5a059]/40 select-all">
+                2813955
+              </span>
+              <span className="text-[#c5a059]">•</span>
+              <span className="text-xs text-[#e8e4da]">للتواصل واتساب: 00249919980435</span>
             </div>
           </div>
 

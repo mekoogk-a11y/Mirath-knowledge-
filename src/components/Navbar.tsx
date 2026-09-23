@@ -12,6 +12,7 @@ import {
   Info,
   ArrowRight,
   ArrowLeft,
+  Search,
 } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 
@@ -32,6 +33,7 @@ interface NavbarProps {
   canGoForward?: boolean;
   onGoBack?: () => void;
   onGoForward?: () => void;
+  onOpenSearch?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -41,6 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   canGoForward,
   onGoBack,
   onGoForward,
+  onOpenSearch,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
@@ -179,11 +182,25 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </nav>
 
-          {/* Actions & PWA Install Button */}
+          {/* Actions & PWA Install Button & Search Trigger */}
           <div className="flex items-center gap-2">
+            {onOpenSearch && (
+              <button
+                onClick={onOpenSearch}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#09291f] hover:bg-[#0e3b2d] border border-[#c5a059]/40 text-[#f3e5ab] text-xs font-medium transition shadow-xs active:scale-95"
+                title="بحث سريع في كل محتويات التطبيق (Ctrl+K)"
+              >
+                <Search className="w-3.5 h-3.5 text-[#c5a059]" />
+                <span className="hidden sm:inline">بحث</span>
+                <span className="hidden md:inline bg-black/40 px-1.5 py-0.5 rounded text-[10px] font-mono text-[#c5a059] border border-[#c5a059]/20">
+                  Ctrl+K
+                </span>
+              </button>
+            )}
+
             <PWAInstallButton
               variant="outline"
-              className="hidden sm:inline-flex text-xs py-2 px-3"
+              className="hidden sm:inline-flex text-xs py-1.5 px-3"
               label="تثبيت التطبيق"
             />
 
@@ -203,6 +220,22 @@ export const Navbar: React.FC<NavbarProps> = ({
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-[#c5a059]/20 bg-[#0a2e24] px-4 pt-3 pb-6 animate-in slide-in-from-top-4 duration-200">
           <div className="flex flex-col gap-1.5">
+            {onOpenSearch && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenSearch();
+                }}
+                className="flex items-center justify-between px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-[#c5a059]/20 text-[#f3e5ab] border border-[#c5a059]/40 mb-1"
+              >
+                <div className="flex items-center gap-3">
+                  <Search className="w-4 h-4 text-[#c5a059]" />
+                  <span>بحث سريع في كل الأبواب والمصطلحات</span>
+                </div>
+                <span className="text-[10px] bg-[#0e382c] px-2 py-0.5 rounded text-[#c5a059]">بحث</span>
+              </button>
+            )}
+
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
