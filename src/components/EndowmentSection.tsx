@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   BookOpen,
   Search,
@@ -188,9 +188,14 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
   const activeCard = currentCardIndex !== -1 ? endowmentCardsData[currentCardIndex] : null;
 
   // Synchronize state with top navigation controller (Breadcrumb & Back button)
+  const onSubStateChangeRef = useRef(onSubStateChange);
+  useEffect(() => {
+    onSubStateChangeRef.current = onSubStateChange;
+  });
+
   useEffect(() => {
     if (selectedCardId && activeCard) {
-      onSubStateChange?.(`بطاقة #${activeCard.number}: ${activeCard.title}`, () => {
+      onSubStateChangeRef.current?.(`بطاقة #${activeCard.number}: ${activeCard.title}`, () => {
         setSelectedCardId(null);
       });
     } else if (activeSubTab !== 'cards') {
@@ -201,14 +206,14 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
         template: 'نموذج معلومات وقف',
         assistant: 'مساعد الوقف الذكي',
       };
-      onSubStateChange?.(subTabTitles[activeSubTab], () => {
+      onSubStateChangeRef.current?.(subTabTitles[activeSubTab], () => {
         setActiveSubTab('cards');
         setSelectedCardId(null);
       });
     } else {
-      onSubStateChange?.(undefined, undefined);
+      onSubStateChangeRef.current?.(undefined, undefined);
     }
-  }, [selectedCardId, activeCard, activeSubTab, onSubStateChange]);
+  }, [selectedCardId, activeCard, activeSubTab]);
 
   const handleNextCard = () => {
     if (currentCardIndex < endowmentCardsData.length - 1) {

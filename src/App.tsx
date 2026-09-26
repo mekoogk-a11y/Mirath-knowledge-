@@ -12,7 +12,8 @@ import { OfflineIndicator } from './components/OfflineIndicator';
 import { NavigationController, TAB_NAMES } from './components/NavigationController';
 import { ContributionTicker } from './components/ContributionTicker';
 import { GlobalSearchModal } from './components/GlobalSearchModal';
-import { MessageCircle, ExternalLink } from 'lucide-react';
+import { MessageCircle, ExternalLink, Mic } from 'lucide-react';
+import { SudaneseAudioPromoModal } from './components/SudaneseAudioPromoModal';
 
 export default function App() {
   const [history, setHistory] = useState<ActiveTab[]>(['home']);
@@ -24,6 +25,9 @@ export default function App() {
 
   // Global search modal state
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Promotional Sudanese Audio Voiceover Modal state
+  const [isPromoAudioOpen, setIsPromoAudioOpen] = useState(false);
 
   // Preset to pass to the Calculator when requested from Hero or Search
   const [calculatorPreset, setCalculatorPreset] = useState<string | null>(null);
@@ -55,18 +59,18 @@ export default function App() {
         return;
       }
 
+      const nextIndex = historyIndex + 1;
       setHistory((prevHistory) => {
         const nextHistory = prevHistory.slice(0, historyIndex + 1);
         nextHistory.push(tab);
-        const nextIndex = nextHistory.length - 1;
-        setHistoryIndex(nextIndex);
-        try {
-          window.history.pushState({ index: nextIndex, tab }, '', `#${tab}`);
-        } catch (e) {
-          // ignore potential iframe restrictions
-        }
         return nextHistory;
       });
+      setHistoryIndex(nextIndex);
+      try {
+        window.history.pushState({ index: nextIndex, tab }, '', `#${tab}`);
+      } catch (e) {
+        // ignore potential iframe restrictions
+      }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
@@ -82,6 +86,27 @@ export default function App() {
     },
     [navigateTo]
   );
+
+  const handleSubStateChange = useCallback((title?: string, onBack?: () => void) => {
+    setSubTitle(title);
+    setSubBackHandler(() => onBack);
+  }, []);
+
+  const handleBookChapterSelect = useCallback((title: string) => {
+    setSubTitle(title);
+    setSubBackHandler(() => () => {
+      setSubTitle(undefined);
+      setSubBackHandler(undefined);
+    });
+  }, []);
+
+  const handlePresetConsumed = useCallback(() => {
+    setCalculatorPreset(null);
+  }, []);
+
+  const handleOpenSearch = useCallback(() => {
+    setIsSearchOpen(true);
+  }, []);
 
   // Go Back
   const goBack = useCallback(() => {
@@ -206,33 +231,24 @@ export default function App() {
         {activeTab === 'home' && (
           <HeroHome
             onNavigate={handleNavigateWithPayload}
-            onOpenSearch={() => setIsSearchOpen(true)}
+            onOpenSearch={handleOpenSearch}
           />
         )}
         {activeTab === 'calculator' && (
           <Calculator
             initialPreset={calculatorPreset}
-            onPresetConsumed={() => setCalculatorPreset(null)}
+            onPresetConsumed={handlePresetConsumed}
           />
         )}
         {activeTab === 'book' && (
           <BookReader
-            onChapterSelect={(title) => {
-              setSubTitle(title);
-              setSubBackHandler(() => () => {
-                setSubTitle(undefined);
-                setSubBackHandler(undefined);
-              });
-            }}
+            onChapterSelect={handleBookChapterSelect}
           />
         )}
         {activeTab === 'endowment' && (
           <EndowmentSection
             onNavigateHome={goHome}
-            onSubStateChange={(title, onBack) => {
-              setSubTitle(title);
-              setSubBackHandler(() => onBack);
-            }}
+            onSubStateChange={handleSubStateChange}
           />
         )}
         {activeTab === 'dictionary' && <DictionaryView />}
@@ -293,6 +309,14 @@ export default function App() {
             <button onClick={() => navigateTo('tests')} className="hover:underline">
               الاختبارات الحسابية
             </button>
+            <span>•</span>
+            <button
+              onClick={() => setIsPromoAudioOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#f3e5ab] font-bold border border-[#c5a059]/40 transition active:scale-95"
+            >
+              <Mic className="w-3.5 h-3.5 text-[#c5a059] animate-pulse" />
+              <span>🎙️ الصوت الإعلاني (سوداني)</span>
+            </button>
           </div>
 
           {/* Official Credits and WhatsApp Contact */}
@@ -308,7 +332,7 @@ export default function App() {
                   rel="noopener noreferrer"
                   className="text-[#f3e5ab] hover:underline font-bold font-mono inline-flex items-center gap-1"
                 >
-                  00249919980435
+                  +249919980435
                   <ExternalLink className="w-3 h-3 text-[#c5a059]" />
                 </a>
               </span>
@@ -321,7 +345,7 @@ export default function App() {
                 2813955
               </span>
               <span className="text-[#c5a059]">•</span>
-              <span className="text-xs text-[#e8e4da]">للتواصل واتساب: 00249919980435</span>
+              <span className="text-xs text-[#e8e4da]">للتواصل واتساب: +249919980435</span>
             </div>
           </div>
 
@@ -340,6 +364,12 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Global Sudanese Promotional Audio Modal */}
+      <SudaneseAudioPromoModal
+        isOpen={isPromoAudioOpen}
+        onClose={() => setIsPromoAudioOpen(false)}
+      />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { HeirsInput, CalculationResult } from '../types/inheritance';
 import { calculateInheritance } from '../engine/farayedEngine';
 import {
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 const CURRENCIES = [
+  'جنيه سوداني',
   'ريال سعودي',
   'درهم إماراتي',
   'دينار كويتي',
@@ -71,14 +72,19 @@ export const Calculator: React.FC<CalculatorProps> = ({
     return calculateInheritance(input);
   }, [input]);
 
+  const lastAppliedPresetRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (initialPreset) {
+    if (initialPreset && initialPreset !== lastAppliedPresetRef.current) {
+      lastAppliedPresetRef.current = initialPreset;
       handleApplyPreset(initialPreset);
       if (onPresetConsumed) {
         onPresetConsumed();
       }
+    } else if (!initialPreset) {
+      lastAppliedPresetRef.current = null;
     }
-  }, [initialPreset]);
+  }, [initialPreset, onPresetConsumed]);
 
   const handleGenderChange = (gender: 'male' | 'female') => {
     setInput((prev) => ({
@@ -311,6 +317,22 @@ export const Calculator: React.FC<CalculatorProps> = ({
                     </option>
                   ))}
                 </select>
+                <div className="flex flex-wrap items-center gap-1 pt-1">
+                  {['جنيه سوداني', 'ريال سعودي', 'درهم إماراتي', 'جنيه مصري', 'دولار أمريكي'].map((curr) => (
+                    <button
+                      key={curr}
+                      type="button"
+                      onClick={() => setInput((prev) => ({ ...prev, currency: curr }))}
+                      className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-md font-semibold transition ${
+                        input.currency === curr
+                          ? 'bg-[#0e382c] text-[#f3e5ab] shadow-xs'
+                          : 'bg-[#fbf9f4] hover:bg-gray-100 text-gray-600 border border-gray-200'
+                      }`}
+                    >
+                      {curr}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 

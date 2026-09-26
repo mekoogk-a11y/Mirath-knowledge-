@@ -14,11 +14,15 @@ import {
   Copy,
   Check,
   HeartHandshake,
+  Mic,
+  Volume2,
 } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
+import { SudaneseAudioPromoModal } from './SudaneseAudioPromoModal';
 
 export const AboutView: React.FC = () => {
   const [copied, setCopied] = useState(false);
+  const [showPromoAudio, setShowPromoAudio] = useState(false);
   const accountNumber = '2813955';
 
   const handleCopy = () => {
@@ -67,7 +71,7 @@ export const AboutView: React.FC = () => {
             className="px-6 py-3.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-98 shrink-0"
           >
             <MessageCircle className="w-5 h-5 text-white" />
-            <span>تواصل عبر واتساب: 00249919980435</span>
+            <span>تواصل عبر واتساب: +249919980435</span>
             <ExternalLink className="w-4 h-4 text-emerald-200" />
           </a>
         </div>
@@ -191,7 +195,7 @@ export const AboutView: React.FC = () => {
                 className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-[#fdfbf7] font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition border border-white/20"
               >
                 <MessageCircle className="w-4 h-4 text-emerald-400" />
-                <span>واتساب: 00249919980435</span>
+                <span>واتساب: +249919980435</span>
               </a>
             </div>
           </div>
@@ -207,6 +211,37 @@ export const AboutView: React.FC = () => {
         </div>
       </section>
 
+      {/* Sudanese Promotional Audio Voiceover Showcase */}
+      <section className="bg-gradient-to-r from-[#09261e] via-[#0e382c] to-[#09261e] text-white rounded-3xl p-6 sm:p-8 border-2 border-[#c5a059] shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-4 text-center sm:text-right">
+          <div className="w-14 h-14 rounded-2xl bg-[#c5a059]/20 border border-[#c5a059] flex items-center justify-center shrink-0 shadow-inner">
+            <Mic className="w-7 h-7 text-[#f3e5ab] animate-pulse" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 justify-center sm:justify-start">
+              <span className="text-[11px] bg-[#c5a059] text-[#0e382c] font-bold px-2 py-0.5 rounded-full">
+                جديد الحصريات
+              </span>
+              <span className="text-xs text-[#c5a059]">صوت رجل بالعامية السودانية</span>
+            </div>
+            <h3 className="text-lg sm:text-xl font-bold font-amiri text-[#fdfbf7]">
+              النصوص والإعلانات الصوتية الترويجية للمنصة
+            </h3>
+            <p className="text-xs text-[#e8e4da]/80 max-w-xl">
+              استمع وانسخ النصوص الإعلانية الحماسية (60 ثانية، 30 ثانية ريلز، 15 ثانية حالات واتساب) لنشر التطبيق والمساهمة مع توجيهات المخرج الصوتي.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setShowPromoAudio(true)}
+          className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-[#c5a059] hover:bg-[#d8b56d] text-[#0e382c] font-bold text-sm flex items-center justify-center gap-2.5 transition active:scale-95 shadow-lg shrink-0"
+        >
+          <Volume2 className="w-5 h-5 text-[#0e382c]" />
+          <span>فتح استوديو الإعلان الصوتي</span>
+        </button>
+      </section>
+
       {/* PWA Promotion Card */}
       <section className="bg-gradient-to-r from-[#fbf9f4] to-[#f4ede0] rounded-3xl p-6 sm:p-8 border border-[#c5a059]/40 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="space-y-1 text-center sm:text-right">
@@ -219,6 +254,12 @@ export const AboutView: React.FC = () => {
         </div>
         <PWAInstallButton variant="primary" className="py-2.5 px-6 text-sm shrink-0" />
       </section>
+
+      {/* Sudanese Promotional Audio Voiceover Modal */}
+      <SudaneseAudioPromoModal
+        isOpen={showPromoAudio}
+        onClose={() => setShowPromoAudio(false)}
+      />
     </div>
   );
 };

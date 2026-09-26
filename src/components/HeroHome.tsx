@@ -38,13 +38,14 @@ export const HeroHome: React.FC<HeroHomeProps> = ({ onNavigate, onOpenSearch }) 
   const [quickDaughters, setQuickDaughters] = useState<number>(2);
   const [quickMother, setQuickMother] = useState<boolean>(true);
   const [quickFather, setQuickFather] = useState<boolean>(false);
+  const [quickCurrency, setQuickCurrency] = useState<string>('جنيه سوداني');
 
   // Compute live preview
   const liveResult = React.useMemo(() => {
     return calculateInheritance({
       deceasedGender: quickGender,
       estateValue: quickEstate,
-      currency: 'ريال',
+      currency: quickCurrency,
       hasHusband: quickGender === 'female' ? quickHusband : false,
       wivesCount: quickGender === 'male' ? quickWives : 0,
       hasFather: quickFather,
@@ -63,7 +64,7 @@ export const HeroHome: React.FC<HeroHomeProps> = ({ onNavigate, onOpenSearch }) 
       maternalBrothersCount: 0,
       maternalSistersCount: 0,
     });
-  }, [quickGender, quickEstate, quickWives, quickHusband, quickSons, quickDaughters, quickMother, quickFather]);
+  }, [quickGender, quickEstate, quickCurrency, quickWives, quickHusband, quickSons, quickDaughters, quickMother, quickFather]);
 
   return (
     <div className="space-y-14 pb-20 text-right font-sans" dir="rtl">
@@ -343,9 +344,27 @@ export const HeroHome: React.FC<HeroHomeProps> = ({ onNavigate, onOpenSearch }) 
               </div>
             </div>
 
-            {/* Estate Value */}
-            <div>
-              <label className="text-xs text-gray-500 block mb-1">قيمة التركة (ريال):</label>
+            {/* Estate Value & Currency */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                <span>قيمة التركة:</span>
+                <div className="flex items-center gap-1">
+                  {['جنيه سوداني', 'ريال سعودي', 'دولار أمريكي'].map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setQuickCurrency(c)}
+                      className={`text-[10px] px-1.5 py-0.5 rounded transition ${
+                        quickCurrency === c
+                          ? 'bg-[#0e382c] text-[#f3e5ab] font-bold'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {c === 'جنيه سوداني' ? 'جنيه سوداني' : c === 'ريال سعودي' ? 'ريال' : 'دولار'}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <input
                 type="number"
                 step="1000"
@@ -498,7 +517,7 @@ export const HeroHome: React.FC<HeroHomeProps> = ({ onNavigate, onOpenSearch }) 
                         </span>
                       </div>
                       <div className="text-left font-mono font-bold text-[#f3e5ab]">
-                        {h.totalAmount.toLocaleString('ar-EG')} ر.س
+                        {h.totalAmount.toLocaleString('ar-EG')} {quickCurrency}
                       </div>
                     </div>
                   ))}

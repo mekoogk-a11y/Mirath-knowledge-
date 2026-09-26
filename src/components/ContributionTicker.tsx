@@ -9,15 +9,18 @@ import {
   X,
   CreditCard,
   MessageCircle,
+  Mic,
 } from 'lucide-react';
+import { SudaneseAudioPromoModal } from './SudaneseAudioPromoModal';
 
 export const ContributionTicker: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showPromoAudio, setShowPromoAudio] = useState(false);
   const bankName = 'بنك الخرطوم';
   const accountHolder = 'المصمم كمال جعفر';
   const accountNumber = '2813955';
-  const whatsappNumber = '00249919980435';
+  const whatsappNumber = '+249919980435';
 
   const handleCopyAccount = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -274,23 +277,43 @@ export const ContributionTicker: React.FC = () => {
               </ul>
             </div>
 
-            {/* Developer Contact */}
-            <div className="pt-3 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-              <span className="text-gray-600 font-medium">لتأكيد التحويل أو التواصل المباشر:</span>
-              <a
-                href={`https://wa.me/249919980435`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#0e382c] hover:bg-[#155342] text-white px-4 py-2.5 rounded-xl font-bold transition shadow-xs active:scale-95"
+            {/* Developer Contact & Audio Promo Button */}
+            <div className="pt-3 border-t border-gray-100 flex flex-col gap-2 text-xs">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <span className="text-gray-600 font-medium">لتأكيد التحويل أو التواصل المباشر:</span>
+                <a
+                  href={`https://wa.me/249919980435`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#0e382c] hover:bg-[#155342] text-white px-4 py-2.5 rounded-xl font-bold transition shadow-xs active:scale-95"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-400" />
+                  <span>واتساب المصمم: +249919980435</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-[#c5a059]" />
+                </a>
+              </div>
+
+              {/* Promotional Audio Voiceover Button */}
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setShowPromoAudio(true);
+                }}
+                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#c5a059]/20 to-[#c5a059]/35 hover:from-[#c5a059]/30 hover:to-[#c5a059]/50 border border-[#c5a059] text-[#0e382c] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-98 shadow-xs"
               >
-                <MessageCircle className="w-4 h-4 text-emerald-400" />
-                <span>واتساب المصمم: 00249919980435</span>
-                <ExternalLink className="w-3.5 h-3.5 text-[#c5a059]" />
-              </a>
+                <Mic className="w-4 h-4 text-[#0e382c] animate-pulse" />
+                <span>🎙️ عرض النص الإعلاني الترويجي (صوت سوداني حماسي)</span>
+              </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Sudanese Promotional Audio Voiceover Modal */}
+      <SudaneseAudioPromoModal
+        isOpen={showPromoAudio}
+        onClose={() => setShowPromoAudio(false)}
+      />
     </>
   );
 };
