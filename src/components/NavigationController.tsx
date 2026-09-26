@@ -4,12 +4,19 @@ import { ActiveTab } from './Navbar';
 
 export const TAB_NAMES: Record<ActiveTab, string> = {
   home: 'الرئيسية',
-  calculator: 'حاسبة المواريث',
-  book: 'كتاب الفرائض والمواريث',
-  endowment: 'الوقف وأحكامه',
+  calculator: 'حاسبة الميراث',
+  estates: 'ملفات التركات',
+  waqf: 'إدارة الوقف والأصول',
+  documents: 'المستندات والصكوك',
+  reviews: 'المراجعات والاعتمادات',
+  reports: 'التقارير الرسمية',
+  alerts: 'التنبيهات',
+  settings: 'الحساب والإعدادات',
+  book: 'كتاب الفرائض (28 فصلاً)',
+  endowment: 'الوقف وأحكامه الفقهية',
   dictionary: 'قاموس المصطلحات',
   assistant: 'المساعد الذكي',
-  about: 'عن التطبيق',
+  about: 'عن المنصة',
   tests: 'الاختبارات الحسابية',
 };
 
@@ -42,13 +49,10 @@ export const NavigationController: React.FC<NavigationControllerProps> = ({
 
   useEffect(() => {
     const checkScroll = () => {
-      if (window.scrollY > 300) {
-        setShowScrollTop(true);
-      } else {
-        setShowScrollTop(false);
-      }
+      const shouldShow = window.scrollY > 300;
+      setShowScrollTop((prev) => (prev === shouldShow ? prev : shouldShow));
     };
-    window.addEventListener('scroll', checkScroll);
+    window.addEventListener('scroll', checkScroll, { passive: true });
     return () => window.removeEventListener('scroll', checkScroll);
   }, []);
 

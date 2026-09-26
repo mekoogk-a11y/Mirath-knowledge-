@@ -2,6 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar, ActiveTab } from './components/Navbar';
 import { HeroHome } from './components/HeroHome';
 import { Calculator } from './components/Calculator';
+import { EstatesHub } from './components/estates/EstatesHub';
+import { WaqfHub } from './components/waqf/WaqfHub';
+import { DocumentsHub } from './components/documents/DocumentsHub';
+import { ReviewsHub } from './components/reviews/ReviewsHub';
+import { ReportsHub } from './components/reports/ReportsHub';
+import { AlertsHub } from './components/alerts/AlertsHub';
+import { SettingsHub } from './components/settings/SettingsHub';
 import { BookReader } from './components/BookReader';
 import { EndowmentSection } from './components/EndowmentSection';
 import { DictionaryView } from './components/DictionaryView';
@@ -88,12 +95,12 @@ export default function App() {
   );
 
   const handleSubStateChange = useCallback((title?: string, onBack?: () => void) => {
-    setSubTitle(title);
-    setSubBackHandler(() => onBack);
+    setSubTitle((prev) => (prev === title ? prev : title));
+    setSubBackHandler((prev) => (prev === onBack ? prev : () => onBack));
   }, []);
 
   const handleBookChapterSelect = useCallback((title: string) => {
-    setSubTitle(title);
+    setSubTitle((prev) => (prev === title ? prev : title));
     setSubBackHandler(() => () => {
       setSubTitle(undefined);
       setSubBackHandler(undefined);
@@ -101,7 +108,7 @@ export default function App() {
   }, []);
 
   const handlePresetConsumed = useCallback(() => {
-    setCalculatorPreset(null);
+    setCalculatorPreset((prev) => (prev === null ? prev : null));
   }, []);
 
   const handleOpenSearch = useCallback(() => {
@@ -238,8 +245,22 @@ export default function App() {
           <Calculator
             initialPreset={calculatorPreset}
             onPresetConsumed={handlePresetConsumed}
+            onSavedAsEstate={() => navigateTo('estates')}
           />
         )}
+        {activeTab === 'estates' && (
+          <EstatesHub
+            onOpenCalculatorWithCase={() => navigateTo('calculator')}
+          />
+        )}
+        {activeTab === 'waqf' && <WaqfHub />}
+        {activeTab === 'documents' && <DocumentsHub />}
+        {activeTab === 'reviews' && <ReviewsHub />}
+        {activeTab === 'reports' && <ReportsHub />}
+        {activeTab === 'alerts' && (
+          <AlertsHub onNavigateToTab={(tab) => navigateTo(tab as ActiveTab)} />
+        )}
+        {activeTab === 'settings' && <SettingsHub />}
         {activeTab === 'book' && (
           <BookReader
             onChapterSelect={handleBookChapterSelect}
@@ -269,10 +290,13 @@ export default function App() {
               <span className="font-amiri text-[#f3e5ab] text-2xl font-bold">م</span>
             </div>
             <h3 className="font-bold text-2xl font-amiri text-[#fdfbf7]">
-              المواريث والوقف وأحكامهما
+              منصة الميراث والوقف
             </h3>
+            <p className="text-xs text-[#c5a059] font-medium font-amiri">
+              «معرفة أوضح. إدارة منظمة. أثر مستمر.»
+            </p>
             <p className="text-xs text-[#dcd7cb] max-w-lg mx-auto leading-relaxed">
-              منصة إسلامية تخصصية تجمع بين علم الفرائض وحاسبة التركات، وقسم متكامل في فقه الوقف وأحكامه ونظارته ومصارفه.
+              منصة رقمية متكاملة تجمع علم الفرائض، حساب الأنصبة الشرعية، تنظيم ملفات التركات، إدارة الأوقاف والأصول والعقود والمتابعة المالية.
             </p>
           </div>
 
@@ -283,31 +307,43 @@ export default function App() {
             </button>
             <span>•</span>
             <button onClick={() => navigateTo('calculator')} className="hover:underline">
-              حاسبة المواريث
+              حاسبة الميراث
+            </button>
+            <span>•</span>
+            <button onClick={() => navigateTo('estates')} className="hover:underline font-bold text-white">
+              ملفات التركات
+            </button>
+            <span>•</span>
+            <button onClick={() => navigateTo('waqf')} className="hover:underline font-bold text-white">
+              إدارة الوقف والأصول
+            </button>
+            <span>•</span>
+            <button onClick={() => navigateTo('documents')} className="hover:underline">
+              المستندات
+            </button>
+            <span>•</span>
+            <button onClick={() => navigateTo('reviews')} className="hover:underline">
+              المراجعات
+            </button>
+            <span>•</span>
+            <button onClick={() => navigateTo('reports')} className="hover:underline">
+              التقارير
+            </button>
+            <span>•</span>
+            <button onClick={() => navigateTo('alerts')} className="hover:underline">
+              التنبيهات
+            </button>
+            <span>•</span>
+            <button onClick={() => navigateTo('settings')} className="hover:underline">
+              الصلاحيات
             </button>
             <span>•</span>
             <button onClick={() => navigateTo('book')} className="hover:underline">
               كتاب الفرائض (28 فصلاً)
             </button>
             <span>•</span>
-            <button onClick={() => navigateTo('endowment')} className="hover:underline text-white font-bold">
-              الوقف وأحكامه
-            </button>
-            <span>•</span>
-            <button onClick={() => navigateTo('dictionary')} className="hover:underline">
-              قاموس المصطلحات
-            </button>
-            <span>•</span>
-            <button onClick={() => navigateTo('assistant')} className="hover:underline">
-              المساعد الذكي
-            </button>
-            <span>•</span>
-            <button onClick={() => navigateTo('about')} className="hover:underline">
-              عن التطبيق
-            </button>
-            <span>•</span>
-            <button onClick={() => navigateTo('tests')} className="hover:underline">
-              الاختبارات الحسابية
+            <button onClick={() => navigateTo('endowment')} className="hover:underline">
+              أحكام الوقف الفقهية
             </button>
             <span>•</span>
             <button
@@ -339,7 +375,7 @@ export default function App() {
             </div>
 
             <div className="text-xs text-[#f3e5ab] font-medium flex flex-wrap items-center justify-center gap-2 pt-2">
-              <span className="text-[#c5a059]">مساهمات دعم وتطوير التطبيق:</span>
+              <span className="text-[#c5a059]">مساهمات دعم وتطوير المنصة:</span>
               <span>حساب بنك الخرطوم باسم المصمم كمال جعفر:</span>
               <span className="font-mono font-extrabold text-[#f3e5ab] bg-white/10 px-2 py-0.5 rounded-md border border-[#c5a059]/40 select-all">
                 2813955
@@ -355,12 +391,12 @@ export default function App() {
               ﴿ تِلْكَ حُدُودُ اللَّهِ وَمَن يُطِعِ اللَّهَ وَرَسُولَهُ يُدْخِلْهُ جَنَّاتٍ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ ﴾
             </p>
             <p className="text-[10px] text-[#8e8a7d]">
-              التطبيق مرجع شرعي وحسابي استرشادي وفق مذهب جمهور الفقهاء الأربعة. في حال النزاعات أو الإجراءات الرسمية، يرجى التوجه للمحاكم الشرعية ووزارات الأوقاف المختصة.
+              المنصة مرجع شرعي وتنظيمي استرشادي وفق مذهب جمهور الفقهاء الأربعة. في حال النزاعات أو الإجراءات الرسمية، يرجى التوجه للمحاكم الشرعية ووزارات الأوقاف المختصة.
             </p>
           </div>
 
           <div className="pt-1 text-[10px] text-[#7d7a6f]">
-            المواريث © {new Date().getFullYear()} — تطبيق ويب تقدمي (PWA) قابل للتثبيت
+            منصة الميراث والوقف © {new Date().getFullYear()} — تطبيق ويب تقدمي (PWA) قابل للتثبيت
           </div>
         </div>
       </footer>

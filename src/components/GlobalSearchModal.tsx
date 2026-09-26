@@ -50,12 +50,13 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   // Focus input upon open
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         inputRef.current?.focus();
       }, 50);
+      return () => clearTimeout(timer);
     } else {
-      setQuery('');
-      setSelectedIndex(0);
+      setQuery((prev) => (prev === '' ? prev : ''));
+      setSelectedIndex((prev) => (prev === 0 ? prev : 0));
     }
   }, [isOpen]);
 
@@ -190,7 +191,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
 
   // Reset selected index when results change
   useEffect(() => {
-    setSelectedIndex(0);
+    setSelectedIndex((prev) => (prev === 0 ? prev : 0));
   }, [query, activeFilter]);
 
   // Handle keyboard navigation

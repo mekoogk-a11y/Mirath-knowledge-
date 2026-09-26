@@ -187,44 +187,64 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
   const currentCardIndex = endowmentCardsData.findIndex((c) => c.id === selectedCardId);
   const activeCard = currentCardIndex !== -1 ? endowmentCardsData[currentCardIndex] : null;
 
-  // Synchronize state with top navigation controller (Breadcrumb & Back button)
-  const onSubStateChangeRef = useRef(onSubStateChange);
-  useEffect(() => {
-    onSubStateChangeRef.current = onSubStateChange;
-  });
+  const subTabTitles: Record<EndowmentSubTab, string> = {
+    cards: 'الموسوعة',
+    dictionary: 'قاموس مصطلحات الوقف',
+    'create-waqf': 'كيف أنشئ وقفاً؟',
+    template: 'نموذج معلومات وقف',
+    assistant: 'مساعد الوقف الذكي',
+  };
 
-  useEffect(() => {
-    if (selectedCardId && activeCard) {
-      onSubStateChangeRef.current?.(`بطاقة #${activeCard.number}: ${activeCard.title}`, () => {
-        setSelectedCardId(null);
+  const handleSelectCard = (cardId: string) => {
+    setSelectedCardId(cardId);
+    const card = endowmentCardsData.find((c) => c.id === cardId);
+    if (card && onSubStateChange) {
+      onSubStateChange(`بطاقة #${card.number}: ${card.title}`, () => {
+        handleCloseCard();
       });
-    } else if (activeSubTab !== 'cards') {
-      const subTabTitles: Record<EndowmentSubTab, string> = {
-        cards: 'الموسوعة',
-        dictionary: 'قاموس مصطلحات الوقف',
-        'create-waqf': 'كيف أنشئ وقفاً؟',
-        template: 'نموذج معلومات وقف',
-        assistant: 'مساعد الوقف الذكي',
-      };
-      onSubStateChangeRef.current?.(subTabTitles[activeSubTab], () => {
-        setActiveSubTab('cards');
-        setSelectedCardId(null);
-      });
-    } else {
-      onSubStateChangeRef.current?.(undefined, undefined);
     }
-  }, [selectedCardId, activeCard, activeSubTab]);
+  };
+
+  const handleCloseCard = () => {
+    setSelectedCardId(null);
+    if (activeSubTab !== 'cards' && onSubStateChange) {
+      onSubStateChange(subTabTitles[activeSubTab], () => {
+        handleSwitchSubTab('cards');
+      });
+    } else if (onSubStateChange) {
+      onSubStateChange(undefined, undefined);
+    }
+  };
+
+  const handleSwitchSubTab = (tab: EndowmentSubTab) => {
+    setActiveSubTab(tab);
+    setSelectedCardId(null);
+    if (tab !== 'cards' && onSubStateChange) {
+      onSubStateChange(subTabTitles[tab], () => {
+        handleSwitchSubTab('cards');
+      });
+    } else if (onSubStateChange) {
+      onSubStateChange(undefined, undefined);
+    }
+  };
+
+  // Cleanup top navigation sub-title when unmounting
+  useEffect(() => {
+    return () => {
+      onSubStateChange?.(undefined, undefined);
+    };
+  }, [onSubStateChange]);
 
   const handleNextCard = () => {
     if (currentCardIndex < endowmentCardsData.length - 1) {
-      setSelectedCardId(endowmentCardsData[currentCardIndex + 1].id);
+      handleSelectCard(endowmentCardsData[currentCardIndex + 1].id);
       window.scrollTo({ top: 180, behavior: 'smooth' });
     }
   };
 
   const handlePrevCard = () => {
     if (currentCardIndex > 0) {
-      setSelectedCardId(endowmentCardsData[currentCardIndex - 1].id);
+      handleSelectCard(endowmentCardsData[currentCardIndex - 1].id);
       window.scrollTo({ top: 180, behavior: 'smooth' });
     }
   };
@@ -284,10 +304,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
       {/* Navigation Sub-Tabs */}
       <div className="flex items-center justify-start sm:justify-center overflow-x-auto gap-2 p-1.5 bg-white rounded-2xl border border-[#c5a059]/30 shadow-xs no-scrollbar">
         <button
-          onClick={() => {
-            setActiveSubTab('cards');
-            setSelectedCardId(null);
-          }}
+          onClick={() => handleSwitchSubTab('cards')}
           className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
             activeSubTab === 'cards'
               ? 'bg-[#0e382c] text-white shadow-sm'
@@ -299,7 +316,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
         </button>
 
         <button
-          onClick={() => setActiveSubTab('dictionary')}
+          onClick={() => handleSwitchSubTab('dictionary')}
           className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
             activeSubTab === 'dictionary'
               ? 'bg-[#0e382c] text-white shadow-sm'
@@ -311,7 +328,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
         </button>
 
         <button
-          onClick={() => setActiveSubTab('create-waqf')}
+          onClick={() => handleSwitchSubTab('create-waqf')}
           className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
             activeSubTab === 'create-waqf'
               ? 'bg-[#0e382c] text-white shadow-sm'
@@ -323,7 +340,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
         </button>
 
         <button
-          onClick={() => setActiveSubTab('template')}
+          onClick={() => handleSwitchSubTab('template')}
           className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
             activeSubTab === 'template'
               ? 'bg-[#0e382c] text-white shadow-sm'
@@ -335,7 +352,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
         </button>
 
         <button
-          onClick={() => setActiveSubTab('assistant')}
+          onClick={() => handleSwitchSubTab('assistant')}
           className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
             activeSubTab === 'assistant'
               ? 'bg-[#0e382c] text-white shadow-sm'
@@ -358,7 +375,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
               {/* Reader Top Action Bar */}
               <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 pb-5">
                 <button
-                  onClick={() => setSelectedCardId(null)}
+                  onClick={handleCloseCard}
                   className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs sm:text-sm font-bold flex items-center gap-2 transition active:scale-98"
                 >
                   <ArrowRight className="w-4 h-4" />
@@ -520,7 +537,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
                 </button>
 
                 <button
-                  onClick={() => setSelectedCardId(null)}
+                  onClick={handleCloseCard}
                   className="text-gray-500 hover:text-[#0e382c]"
                 >
                   الرجوع لقائمة الأبواب
@@ -561,7 +578,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
                   <div
                     key={card.id}
                     onClick={() => {
-                      setSelectedCardId(card.id);
+                      handleSelectCard(card.id);
                       window.scrollTo({ top: 220, behavior: 'smooth' });
                     }}
                     className="group cursor-pointer bg-white rounded-2xl p-5 sm:p-6 border border-[#c5a059]/30 hover:border-[#c5a059] shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4 hover:-translate-y-0.5"
@@ -627,7 +644,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <button
-                  onClick={() => setActiveSubTab('cards')}
+                  onClick={() => handleSwitchSubTab('cards')}
                   className="inline-flex items-center gap-1 text-xs font-bold text-[#0e382c] bg-gray-100 hover:bg-gray-200 px-2.5 py-1 rounded-lg transition"
                 >
                   <ArrowRight className="w-3.5 h-3.5 text-[#c5a059]" />
@@ -698,7 +715,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
         <div className="bg-white rounded-3xl p-6 sm:p-10 border border-[#c5a059]/40 shadow-lg space-y-8">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <button
-              onClick={() => setActiveSubTab('cards')}
+              onClick={() => handleSwitchSubTab('cards')}
               className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0e382c] bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-xl transition"
             >
               <ArrowRight className="w-3.5 h-3.5 text-[#c5a059]" />
@@ -814,7 +831,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
                     </button>
                   ) : (
                     <button
-                      onClick={() => setActiveSubTab('template')}
+                      onClick={() => handleSwitchSubTab('template')}
                       className="px-5 py-2.5 rounded-xl bg-[#c5a059] hover:bg-[#d8b56d] text-[#0e382c] text-xs font-bold flex items-center gap-1.5 shadow-sm"
                     >
                       <span>تعبئة نموذج معلومات الوقف الآن</span>
@@ -835,7 +852,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => setActiveSubTab('cards')}
+              onClick={() => handleSwitchSubTab('cards')}
               className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0e382c] bg-white hover:bg-gray-100 border border-[#c5a059]/30 px-3.5 py-1.5 rounded-xl transition shadow-xs"
             >
               <ArrowRight className="w-3.5 h-3.5 text-[#c5a059]" />
@@ -854,7 +871,7 @@ export const EndowmentSection: React.FC<EndowmentSectionProps> = ({ onNavigateHo
           <div className="flex items-center justify-between border-b border-gray-100 pb-4">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setActiveSubTab('cards')}
+                onClick={() => handleSwitchSubTab('cards')}
                 className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-[#0e382c] transition"
                 title="العودة لبطاقات الوقف"
               >

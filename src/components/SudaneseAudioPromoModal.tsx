@@ -115,6 +115,34 @@ export const SudaneseAudioPromoModal: React.FC<SudaneseAudioPromoModalProps> = (
     },
   };
 
+  // Play an energetic audio fanfare using Web Audio API
+  const playAdvertFanfare = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      const notes = [261.63, 329.63, 392.00, 523.25];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.07);
+        gain.gain.setValueAtTime(0, ctx.currentTime + idx * 0.07);
+        gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + idx * 0.07 + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.07 + 0.7);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + idx * 0.07);
+        osc.stop(ctx.currentTime + idx * 0.07 + 0.75);
+      });
+    } catch {
+      // AudioContext unavailable or blocked
+    }
+  };
+
   // Handle SpeechSynthesis preview
   const handlePlayVoice = () => {
     if (!('speechSynthesis' in window)) {
@@ -130,6 +158,7 @@ export const SudaneseAudioPromoModal: React.FC<SudaneseAudioPromoModalProps> = (
     }
 
     window.speechSynthesis.cancel();
+    playAdvertFanfare();
 
     const selectedSpeechText =
       activeTab === 'directors'
@@ -138,16 +167,25 @@ export const SudaneseAudioPromoModal: React.FC<SudaneseAudioPromoModalProps> = (
 
     const utterance = new SpeechSynthesisUtterance(selectedSpeechText);
     utterance.lang = 'ar-SA';
-    utterance.rate = activeTab === '15s' ? 1.05 : 0.95; // Steady, confident pace
-    utterance.pitch = 0.9; // Masculine lower pitch
+    utterance.rate = activeTab === '15s' ? 1.05 : 0.98; // Energetic and authoritative
+    utterance.pitch = 0.82; // Deep resonant male announcer tone
 
-    // Try finding Arabic voice
+    // Try finding Arabic voice (preferring male if detected)
     const voices = window.speechSynthesis.getVoices();
-    const arabicVoice = voices.find(
+    const maleArabicVoice = voices.find(
+      (v) =>
+        (v.lang.startsWith('ar') || v.name.toLowerCase().includes('arabic')) &&
+        (v.name.toLowerCase().includes('male') ||
+          v.name.toLowerCase().includes('maged') ||
+          v.name.toLowerCase().includes('tarik') ||
+          v.name.toLowerCase().includes('naayf') ||
+          v.name.toLowerCase().includes('hamza'))
+    );
+    const anyArabicVoice = voices.find(
       (v) => v.lang.startsWith('ar') || v.name.toLowerCase().includes('arabic')
     );
-    if (arabicVoice) {
-      utterance.voice = arabicVoice;
+    if (maleArabicVoice || anyArabicVoice) {
+      utterance.voice = maleArabicVoice || anyArabicVoice || null;
     }
 
     utterance.onstart = () => {
